@@ -2,7 +2,8 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>TikTok Live Battle Arena - Interactive Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TikTok Live Mobile Battle Arena</title>
   <style>
     * {
       box-sizing: border-box;
@@ -15,7 +16,7 @@
       height: 100vh;
       overflow: hidden;
       background: transparent;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     }
     #game-container {
       position: relative;
@@ -27,186 +28,152 @@
       width: 100%;
       height: 100%;
     }
-    /* UI Overlay for HUD / Scores / Controls */
+    /* HUD Vertical para Celular */
     #hud {
       position: absolute;
-      top: 20px;
-      left: 0;
-      width: 100%;
+      top: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
       display: flex;
       justify-content: space-between;
-      padding: 0 40px;
+      align-items: center;
       pointer-events: none;
       z-index: 10;
     }
-    .team-score-card {
-      background: rgba(15, 23, 42, 0.75);
+    .team-card {
+      background: rgba(15, 23, 42, 0.85);
       backdrop-filter: blur(8px);
-      border-radius: 16px;
-      padding: 12px 24px;
+      border-radius: 12px;
+      padding: 8px 14px;
       color: #fff;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 16px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-      border: 2px solid rgba(255, 255, 255, 0.1);
+      min-width: 100px;
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
     }
-    .team-card-a {
-      border-left: 6px solid #ff4757;
-    }
-    .team-card-b {
-      border-right: 6px solid #2ed573;
-    }
+    .team-card-a { border-bottom: 4px solid #ff4757; }
+    .team-card-b { border-bottom: 4px solid #2ed573; }
     .team-title {
-      font-size: 14px;
+      font-size: 11px;
       text-transform: uppercase;
-      letter-spacing: 1.5px;
       font-weight: 800;
-      color: #a4b0be;
+      letter-spacing: 0.5px;
     }
+    .team-card-a .team-title { color: #ff6b81; }
+    .team-card-b .team-title { color: #7bed9f; }
     .team-count {
-      font-size: 32px;
+      font-size: 24px;
       font-weight: 900;
-      text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
     }
-    .team-card-a .team-count { color: #ff6b81; }
-    .team-card-b .team-count { color: #7bed9f; }
-
     .vs-badge {
-      font-size: 28px;
+      font-size: 18px;
       font-weight: 900;
       font-style: italic;
       color: #eccc68;
-      text-shadow: 0 0 12px rgba(236, 204, 104, 0.6);
-      align-self: center;
-      background: rgba(0,0,0,0.4);
-      padding: 8px 16px;
+      background: rgba(0,0,0,0.6);
+      padding: 6px 10px;
       border-radius: 50%;
-      border: 2px solid #eccc68;
+      border: 1px solid #eccc68;
     }
 
-    /* Simulation Control Panel for local testing */
+    /* Panel de Control Flotante */
     #sim-panel {
       position: absolute;
-      bottom: 15px;
+      bottom: 10px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(15, 23, 42, 0.85);
+      background: rgba(15, 23, 42, 0.9);
       backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      padding: 10px 20px;
-      border-radius: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 8px 12px;
+      border-radius: 20px;
       display: flex;
-      gap: 12px;
+      gap: 6px;
       align-items: center;
       z-index: 100;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      max-width: 95vw;
+      flex-wrap: wrap;
+      justify-content: center;
     }
     #sim-panel input, #sim-panel select, #sim-panel button {
-      padding: 6px 12px;
-      border-radius: 20px;
+      padding: 5px 8px;
+      border-radius: 12px;
       border: none;
       outline: none;
-      font-size: 13px;
+      font-size: 11px;
     }
     #sim-panel input[type="text"] {
       background: rgba(255, 255, 255, 0.1);
       color: #fff;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      width: 110px;
+      width: 90px;
     }
-    #sim-panel select {
-      background: #2f3542;
-      color: #fff;
-    }
+    #sim-panel select { background: #2f3542; color: #fff; }
     #sim-panel button {
       background: linear-gradient(135deg, #70a1ff, #1e90ff);
       color: white;
       font-weight: bold;
       cursor: pointer;
-      transition: all 0.2s;
-    }
-    #sim-panel button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 10px rgba(30, 144, 255, 0.5);
-    }
-    #sim-panel label {
-      color: #a4b0be;
-      font-size: 12px;
     }
     .status-dot {
-      width: 10px;
-      height: 10px;
+      width: 8px; height: 8px;
       border-radius: 50%;
       background: #ff4757;
       display: inline-block;
-      margin-right: 6px;
     }
     .status-dot.connected {
       background: #2ed573;
-      box-shadow: 0 0 8px #2ed573;
+      box-shadow: 0 0 6px #2ed573;
     }
   </style>
-  <!-- Load Matter.js Physics Engine from CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
 </head>
 <body>
 
   <div id="game-container">
     <div id="hud">
-      <div class="team-score-card team-card-a">
-        <div>
-          <div class="team-title">EQUIPO A (ROJO)</div>
-          <div style="font-size:11px; color:#ff7888;">Comenta "A" para unirte</div>
-        </div>
+      <div class="team-card team-card-a">
+        <div class="team-title">EQUIPO A</div>
         <div id="count-a" class="team-count">0</div>
       </div>
 
       <div class="vs-badge">VS</div>
 
-      <div class="team-score-card team-card-b">
+      <div class="team-card team-card-b">
+        <div class="team-title">EQUIPO B</div>
         <div id="count-b" class="team-count">0</div>
-        <div style="text-align: right;">
-          <div class="team-title">EQUIPO B (VERDE)</div>
-          <div style="font-size:11px; color:#7bed9f;">Comenta "B" para unirte</div>
-        </div>
       </div>
     </div>
 
-    <!-- Panel de prueba local para simular TikTok / TikFinity sin directo -->
+    <!-- Panel de Prueba Local -->
     <div id="sim-panel">
-      <span id="ws-status-dot" class="status-dot" title="TikFinity WebSocket Status"></span>
-      <input type="text" id="sim-user" placeholder="Nombre Usuario" value="Gamer123">
+      <span id="ws-status-dot" class="status-dot" title="Estado TikFinity"></span>
+      <input type="text" id="sim-user" placeholder="Usuario" value="User1">
       <select id="sim-action">
-        <option value="A">Unir Equipo A</option>
-        <option value="B">Unir Equipo B</option>
-        <option value="GIFT_SMALL">Regalo Pequeño (Rosa / 1 Coin)</option>
-        <option value="GIFT_MEDIUM">Regalo Mediano (Corazón / 10 Coins)</option>
-        <option value="GIFT_LARGE">Regalo Grande (Cohete / 100 Coins)</option>
+        <option value="A">Equipo A (Arriba)</option>
+        <option value="B">Equipo B (Abajo)</option>
+        <option value="GIFT_SMALL">Regalo 1 Coin</option>
+        <option value="GIFT_MEDIUM">Regalo 10 Coins</option>
+        <option value="GIFT_LARGE">Regalo 100 Coins</option>
       </select>
-      <button onclick="triggerSimulation()">Simular Evento</button>
-      <button onclick="toggleSimPanel()" style="background:#57606f;">Ocultar Controles</button>
+      <button onclick="triggerSimulation()">Probar</button>
+      <button onclick="toggleSimPanel()" style="background:#57606f;">Ocultar</button>
     </div>
   </div>
 
 <script>
-  // ==========================================
-  // CONFIGURACIÓN E INICIALIZACIÓN DE MATTER.JS
-  // ==========================================
   const Engine = Matter.Engine,
         Render = Matter.Render,
         Runner = Matter.Runner,
         Bodies = Matter.Bodies,
         Composite = Matter.Composite,
-        Constraint = Matter.Constraint,
         Vector = Matter.Vector,
         Events = Matter.Events,
         Body = Matter.Body;
 
-  const engine = Engine.create({
-    gravity: { x: 0, y: 0.4 } // Gravedad suave para combates dinámicos
-  });
-
+  const engine = Engine.create({ gravity: { x: 0, y: 0.3 } });
   const container = document.getElementById('game-container');
   const width = window.innerWidth;
   const height = window.innerHeight;
@@ -214,357 +181,195 @@
   const render = Render.create({
     element: container,
     engine: engine,
-    options: {
-      width: width,
-      height: height,
-      wireframes: false,
-      background: 'transparent'
-    }
+    options: { width: width, height: height, wireframes: false, background: 'transparent' }
   });
 
   Render.run(render);
   const runner = Runner.create();
   Runner.run(runner, engine);
 
-  // ==========================================
-  // BORDES Y ARENA DE COMBATE
-  // ==========================================
+  // Bordes ajustados
   const wallOptions = { isStatic: true, restitution: 0.9, friction: 0.1, render: { visible: false } };
   const wallThickness = 100;
 
-  const ground = Bodies.rectangle(width / 2, height + wallThickness/2 - 10, width * 2, wallThickness, wallOptions);
-  const leftWall = Bodies.rectangle(-wallThickness/2, height / 2, wallThickness, height * 2, wallOptions);
-  const rightWall = Bodies.rectangle(width + wallThickness/2, height / 2, wallThickness, height * 2, wallOptions);
-  const ceiling = Bodies.rectangle(width / 2, -wallThickness/2, width * 2, wallThickness, wallOptions);
+  Composite.add(engine.world, [
+    Bodies.rectangle(width / 2, height + wallThickness/2 - 10, width * 2, wallThickness, wallOptions),
+    Bodies.rectangle(-wallThickness/2, height / 2, wallThickness, height * 2, wallOptions),
+    Bodies.rectangle(width + wallThickness/2, height / 2, wallThickness, height * 2, wallOptions),
+    Bodies.rectangle(width / 2, -wallThickness/2, width * 2, wallThickness, wallOptions)
+  ]);
 
-  Composite.add(engine.world, [ground, leftWall, rightWall, ceiling]);
-
-  // ==========================================
-  // GESTIÓN DE JUGADORES Y EQUIPOS
-  // ==========================================
-  const players = {}; // Hashmap de jugadores por username
-  let countA = 0;
-  let countB = 0;
-
-  // Avatares por defecto estilizados
-  const DEFAULT_AVATARS = [
-    'https://api.dicebear.com/7.x/bottts/svg?seed=',
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=',
-    'https://api.dicebear.com/7.x/identicon/svg?seed='
-  ];
+  const players = {};
+  let countA = 0, countB = 0;
 
   class Fighter {
     constructor(username, avatarUrl, team) {
       this.username = username;
-      this.team = team; // 'A' o 'B'
-      this.baseRadius = 32;
-      this.radius = this.baseRadius;
-      
+      this.team = team;
+      // Ajuste de escala para pantallas estrechas de celular
+      this.radius = Math.min(width, height) * 0.055; 
+      if (this.radius < 24) this.radius = 24;
+
       this.maxHp = 100;
       this.hp = 100;
       this.power = 15;
       
-      // Ubicación inicial según el equipo
-      const spawnX = team === 'A' ? width * 0.2 + (Math.random() * 100 - 50) : width * 0.8 + (Math.random() * 100 - 50);
-      const spawnY = height * 0.3 + (Math.random() * 100);
+      // Spawn Vertical: A arriba, B abajo
+      const spawnX = width * 0.2 + (Math.random() * width * 0.6);
+      const spawnY = team === 'A' ? height * 0.25 : height * 0.75;
 
-      // Crear cuerpo físico circular en Matter.js
       this.body = Bodies.circle(spawnX, spawnY, this.radius, {
-        restitution: 0.85, // Rebote
+        restitution: 0.85,
         friction: 0.05,
         frictionAir: 0.015,
         density: 0.002,
-        render: { visible: false } // Renderizado personalizado en AfterRender
+        render: { visible: false }
       });
 
-      this.body.pluginFighter = this; // Referencia inversa
-      
-      // Cargar imagen de perfil avatar
+      this.body.pluginFighter = this;
       this.avatarImg = new Image();
-      const seed = encodeURIComponent(username);
-      this.avatarImg.src = avatarUrl || `${DEFAULT_AVATARS[0]}${seed}`;
+      this.avatarImg.src = avatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(username)}`;
 
-      // Efectos visuales de impacto / buff
       this.hitFlash = 0;
       this.buffEffect = 0;
 
       Composite.add(engine.world, this.body);
     }
 
-    // Aplicar mejoras por regalos/donaciones
-    applyBuff(type, multiplier = 1) {
-      this.buffEffect = 30; // Frames de aura brillante
-
-      if (type === 'HP' || type === 'GIFT_SMALL') {
-        this.maxHp += 30 * multiplier;
-        this.hp = Math.min(this.hp + 40 * multiplier, this.maxHp);
-      } 
-      else if (type === 'POWER' || type === 'GIFT_MEDIUM') {
-        this.power += 10 * multiplier;
-        this.body.torque = (Math.random() - 0.5) * 0.1;
-      } 
-      else if (type === 'MEGA' || type === 'GIFT_LARGE') {
-        this.maxHp += 100 * multiplier;
-        this.hp += 100 * multiplier;
-        this.power += 25 * multiplier;
-        
-        // Aumentar tamaño de la burbuja
-        const scaleFactor = 1.25;
-        this.radius *= scaleFactor;
-        Body.scale(this.body, scaleFactor, scaleFactor);
+    applyBuff(type) {
+      this.buffEffect = 30;
+      if (type === 'GIFT_SMALL') {
+        this.maxHp += 30;
+        this.hp = Math.min(this.hp + 40, this.maxHp);
+      } else if (type === 'GIFT_MEDIUM') {
+        this.power += 12;
+      } else if (type === 'GIFT_LARGE') {
+        this.maxHp += 100;
+        this.hp += 100;
+        this.power += 25;
+        this.radius *= 1.2;
+        Body.scale(this.body, 1.2, 1.2);
       }
-
-      // Impulso hacia arriba al recibir buff
-      Body.applyForce(this.body, this.body.position, { x: (Math.random()-0.5)*0.02, y: -0.05 * multiplier });
+      Body.applyForce(this.body, this.body.position, { x: (Math.random()-0.5)*0.02, y: this.team === 'A' ? 0.03 : -0.03 });
     }
 
-    takeDamage(amount, attackerPosition) {
+    takeDamage(amount, attackerPos) {
       this.hp -= amount;
       this.hitFlash = 10;
-
-      // Calcular dirección del empuje tras ser golpeado
-      if (attackerPosition) {
-        const forceDir = Vector.normalise(Vector.sub(this.body.position, attackerPosition));
-        Body.applyForce(this.body, this.body.position, Vector.mult(forceDir, 0.03 * (amount / 10)));
+      if (attackerPos) {
+        const forceDir = Vector.normalise(Vector.sub(this.body.position, attackerPos));
+        Body.applyForce(this.body, this.body.position, Vector.mult(forceDir, 0.025 * (amount / 10)));
       }
-
-      // Muerte del personaje
-      if (this.hp <= 0) {
-        this.destroy();
-      }
+      if (this.hp <= 0) this.destroy();
     }
 
     destroy() {
-      // Efecto de partículas de explosión
       createExplosion(this.body.position.x, this.body.position.y, this.team === 'A' ? '#ff4757' : '#2ed573');
-      
       Composite.remove(engine.world, this.body);
       delete players[this.username];
-
-      if (this.team === 'A') countA--;
-      else countB--;
+      if (this.team === 'A') countA--; else countB--;
       updateScores();
     }
   }
 
-  // ==========================================
-  // LÓGICA DE COMBATE Y BATTLE AI (IA DE REBOTE)
-  // ==========================================
-  
-  // Impulsar periódicamente a las burbujas hacia los enemigos para mantener la batalla activa
+  // IA de Ataque
   setInterval(() => {
-    const allFighters = Object.values(players);
-    const teamAFighters = allFighters.filter(p => p.team === 'A');
-    const teamBFighters = allFighters.filter(p => p.team === 'B');
+    const all = Object.values(players);
+    const teamA = all.filter(p => p.team === 'A');
+    const teamB = all.filter(p => p.team === 'B');
 
-    allFighters.forEach(fighter => {
-      const targets = fighter.team === 'A' ? teamBFighters : teamAFighters;
+    all.forEach(f => {
+      const targets = f.team === 'A' ? teamB : teamA;
       if (targets.length > 0) {
-        // Encontrar objetivo más cercano
-        let closest = targets[0];
-        let minDistance = Infinity;
-
-        targets.forEach(target => {
-          const dist = Vector.magnitudeSquared(Vector.sub(target.body.position, fighter.body.position));
-          if (dist < minDistance) {
-            minDistance = dist;
-            closest = target;
-          }
+        let closest = targets[0], minDist = Infinity;
+        targets.forEach(t => {
+          const d = Vector.magnitudeSquared(Vector.sub(t.body.position, f.body.position));
+          if (d < minDist) { minDist = d; closest = t; }
         });
-
-        // Impulsar hacia el enemigo
-        const direction = Vector.normalise(Vector.sub(closest.body.position, fighter.body.position));
-        const impulse = Vector.mult(direction, 0.008 * fighter.body.mass);
-        Body.applyForce(fighter.body, fighter.body.position, impulse);
+        const dir = Vector.normalise(Vector.sub(closest.body.position, f.body.position));
+        Body.applyForce(f.body, f.body.position, Vector.mult(dir, 0.006 * f.body.mass));
       }
     });
-  }, 1200);
+  }, 1000);
 
-  // Manejo de Colisiones en Matter.js (Ataque al chocar)
-  Events.on(engine, 'collisionStart', function(event) {
-    const pairs = event.pairs;
-
-    pairs.forEach(pair => {
-      const bodyA = pair.bodyA;
-      const bodyB = pair.bodyB;
-
-      if (bodyA.pluginFighter && bodyB.pluginFighter) {
-        const f1 = bodyA.pluginFighter;
-        const f2 = bodyB.pluginFighter;
-
-        // Solo se hacen daño si pertenecen a equipos opuestos
-        if (f1.team !== f2.team) {
-          // Daño basado en poder y velocidad del impacto
-          const speedA = Vector.magnitude(bodyA.velocity);
-          const speedB = Vector.magnitude(bodyB.velocity);
-          const impactSpeed = speedA + speedB;
-
-          const dmg1 = Math.max(5, Math.round(f1.power * (1 + impactSpeed * 0.1)));
-          const dmg2 = Math.max(5, Math.round(f2.power * (1 + impactSpeed * 0.1)));
-
-          f2.takeDamage(dmg1, bodyA.position);
-          f1.takeDamage(dmg2, bodyB.position);
-
-          // Crear chispa de impacto
-          const midX = (bodyA.position.x + bodyB.position.x) / 2;
-          const midY = (bodyA.position.y + bodyB.position.y) / 2;
-          createSpark(midX, midY);
-        }
+  // Colisiones
+  Events.on(engine, 'collisionStart', event => {
+    event.pairs.forEach(pair => {
+      const f1 = pair.bodyA.pluginFighter;
+      const f2 = pair.bodyB.pluginFighter;
+      if (f1 && f2 && f1.team !== f2.team) {
+        const speed = Vector.magnitude(pair.bodyA.velocity) + Vector.magnitude(pair.bodyB.velocity);
+        f2.takeDamage(Math.max(5, Math.round(f1.power * (1 + speed * 0.1))), pair.bodyA.position);
+        f1.takeDamage(Math.max(5, Math.round(f2.power * (1 + speed * 0.1))), pair.bodyB.position);
       }
     });
   });
 
-  // ==========================================
-  // RENDERIZADO PERSONALIZADO EN CANVAS (VISUALES)
-  // ==========================================
+  // Render
   const particles = [];
-
   function createExplosion(x, y, color) {
-    for (let i = 0; i < 20; i++) {
-      particles.push({
-        x: x, y: y,
-        vx: (Math.random() - 0.5) * 12,
-        vy: (Math.random() - 0.5) * 12,
-        radius: Math.random() * 6 + 2,
-        color: color,
-        life: 1.0
-      });
-    }
+    for (let i = 0; i < 18; i++) particles.push({ x, y, vx: (Math.random()-0.5)*10, vy: (Math.random()-0.5)*10, radius: Math.random()*5+2, color, life: 1 });
   }
 
-  function createSpark(x, y) {
-    for (let i = 0; i < 8; i++) {
-      particles.push({
-        x: x, y: y,
-        vx: (Math.random() - 0.5) * 8,
-        vy: (Math.random() - 0.5) * 8,
-        radius: Math.random() * 3 + 1,
-        color: '#eccc68',
-        life: 0.8
-      });
-    }
-  }
-
-  Events.on(render, 'afterRender', function() {
+  Events.on(render, 'afterRender', () => {
     const ctx = render.context;
 
-    // 1. Dibujar Partículas
+    // Partículas
     for (let i = particles.length - 1; i >= 0; i--) {
       const p = particles[i];
-      p.x += p.vx;
-      p.y += p.vy;
-      p.life -= 0.03;
-
-      if (p.life <= 0) {
-        particles.splice(i, 1);
-        continue;
-      }
-
-      ctx.save();
-      ctx.globalAlpha = p.life;
-      ctx.beginPath();
+      p.x += p.vx; p.y += p.vy; p.life -= 0.035;
+      if (p.life <= 0) { particles.splice(i, 1); continue; }
+      ctx.save(); ctx.globalAlpha = p.life; ctx.beginPath();
       ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-      ctx.fillStyle = p.color;
-      ctx.fill();
-      ctx.restore();
+      ctx.fillStyle = p.color; ctx.fill(); ctx.restore();
     }
 
-    // 2. Dibujar Jugadores (Burbujas, Fotos, Barras de Vida)
+    // Jugadores
     Object.values(players).forEach(f => {
       const pos = f.body.position;
-      const angle = f.body.angle;
-
       ctx.save();
       ctx.translate(pos.x, pos.y);
 
-      // Efecto Flash por Golpe
-      if (f.hitFlash > 0) {
-        f.hitFlash--;
-        ctx.shadowColor = '#ffffff';
-        ctx.shadowBlur = 20;
-      } 
-      // Efecto Aura por Buff
-      else if (f.buffEffect > 0) {
-        f.buffEffect--;
-        ctx.shadowColor = '#eccc68';
-        ctx.shadowBlur = 25;
-      } else {
-        ctx.shadowColor = f.team === 'A' ? 'rgba(255, 71, 87, 0.5)' : 'rgba(46, 213, 115, 0.5)';
-        ctx.shadowBlur = 12;
-      }
+      ctx.shadowBlur = f.hitFlash > 0 ? 18 : (f.buffEffect > 0 ? 22 : 10);
+      ctx.shadowColor = f.hitFlash > 0 ? '#fff' : (f.buffEffect > 0 ? '#eccc68' : (f.team === 'A' ? '#ff4757' : '#2ed573'));
 
-      // Círculo base de equipo
       ctx.beginPath();
       ctx.arc(0, 0, f.radius, 0, Math.PI * 2);
       ctx.fillStyle = f.team === 'A' ? '#ff4757' : '#2ed573';
       ctx.fill();
-      ctx.lineWidth = 3;
-      ctx.strokeStyle = '#ffffff';
-      ctx.stroke();
+      ctx.lineWidth = 2; ctx.strokeStyle = '#fff'; ctx.stroke();
 
-      // Recortar e Insertar Avatar de Usuario
       if (f.avatarImg.complete && f.avatarImg.naturalWidth !== 0) {
         ctx.beginPath();
-        ctx.arc(0, 0, f.radius - 3, 0, Math.PI * 2);
+        ctx.arc(0, 0, f.radius - 2, 0, Math.PI * 2);
         ctx.clip();
-        ctx.drawImage(f.avatarImg, -f.radius + 3, -f.radius + 3, (f.radius - 3) * 2, (f.radius - 3) * 2);
+        ctx.drawImage(f.avatarImg, -f.radius + 2, -f.radius + 2, (f.radius - 2) * 2, (f.radius - 2) * 2);
       }
-
       ctx.restore();
 
-      // Dibujar Barra de Vida (HP Bar)
-      const barWidth = f.radius * 2.2;
-      const barHeight = 6;
-      const barX = pos.x - barWidth / 2;
-      const barY = pos.y - f.radius - 14;
+      // Barra de Vida
+      const bw = f.radius * 2, bh = 5, bx = pos.x - bw / 2, by = pos.y - f.radius - 10;
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)'; ctx.fillRect(bx, by, bw, bh);
+      const ratio = Math.max(0, f.hp / f.maxHp);
+      ctx.fillStyle = ratio > 0.5 ? '#2ed573' : (ratio > 0.25 ? '#ffa502' : '#ff4757');
+      ctx.fillRect(bx, by, bw * ratio, bh);
 
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-      ctx.fillRect(barX, barY, barWidth, barHeight);
-
-      const hpRatio = Math.max(0, f.hp / f.maxHp);
-      ctx.fillStyle = hpRatio > 0.5 ? '#2ed573' : (hpRatio > 0.25 ? '#ffa502' : '#ff4757');
-      ctx.fillRect(barX, barY, barWidth * hpRatio, barHeight);
-
-      // Borde de barra de vida
-      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(barX, barY, barWidth, barHeight);
-
-      // Dibujar Nombre de Usuario
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 12px Segoe UI, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.shadowColor = 'rgba(0,0,0,0.8)';
-      ctx.shadowBlur = 4;
-      ctx.fillText(f.username, pos.x, pos.y + f.radius + 16);
+      // Nombre
+      ctx.fillStyle = '#fff'; ctx.font = 'bold 11px Segoe UI'; ctx.textAlign = 'center';
+      ctx.fillText(f.username, pos.x, pos.y + f.radius + 14);
     });
   });
 
-  // ==========================================
-  // PROCESAMIENTO DE COMANDOS / EVENTOS TIKTOK
-  // ==========================================
   function processUserAction(username, avatar, choice) {
-    let fighter = players[username];
-
-    if (!fighter) {
-      // Crear nuevo luchador si no existe
-      fighter = new Fighter(username, avatar, choice);
-      players[username] = fighter;
-
-      if (choice === 'A') countA++;
-      else countB++;
+    if (!players[username]) {
+      players[username] = new Fighter(username, avatar, choice);
+      if (choice === 'A') countA++; else countB++;
       updateScores();
-    } else {
-      // Si ya existe y comenta de nuevo, le da un pequeño impulso
-      Body.applyForce(fighter.body, fighter.body.position, { x: (Math.random()-0.5)*0.01, y: -0.02 });
     }
   }
 
   function processGift(username, giftType) {
-    const fighter = players[username];
-    if (fighter) {
-      fighter.applyBuff(giftType);
-    }
+    if (players[username]) players[username].applyBuff(giftType);
   }
 
   function updateScores() {
@@ -572,85 +377,41 @@
     document.getElementById('count-b').innerText = countB;
   }
 
-  // ==========================================
-  // CONEXIÓN WEBSOCKET TIKFINITY
-  // ==========================================
-  function initTikFinityWebSocket() {
-    const statusDot = document.getElementById('ws-status-dot');
-    // Puerto por defecto del servidor WebSocket Overlay de TikFinity
+  // TikFinity WebSocket
+  function initWS() {
     const ws = new WebSocket("ws://localhost:21213/");
-
-    ws.onopen = () => {
-      console.log("Conectado con éxito a TikFinity WS Server");
-      statusDot.classList.add('connected');
-    };
-
-    ws.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-
-        // Evento de Comentario
-        if (data.event === "chat" || data.comment) {
-          const text = (data.comment || data.text || "").trim().toUpperCase();
-          const user = data.nickname || data.uniqueId || data.username;
-          const avatar = data.profilePictureUrl || data.avatar;
-
-          if (text === "A" || text === "B") {
-            processUserAction(user, avatar, text);
-          }
-        }
-
-        // Evento de Regalo / Donación
-        if (data.event === "gift") {
-          const user = data.nickname || data.uniqueId || data.username;
-          const diamonds = data.diamondCount || data.coins || 1;
-
-          if (diamonds >= 100) {
-            processGift(user, 'GIFT_LARGE');
-          } else if (diamonds >= 10) {
-            processGift(user, 'GIFT_MEDIUM');
-          } else {
-            processGift(user, 'GIFT_SMALL');
-          }
-        }
-      } catch (err) {
-        console.error("Error al procesar mensaje de TikFinity:", err);
+    ws.onopen = () => document.getElementById('ws-status-dot').classList.add('connected');
+    ws.onmessage = e => {
+      const data = JSON.parse(e.data);
+      if (data.event === "chat" || data.comment) {
+        const txt = (data.comment || "").trim().toUpperCase();
+        if (txt === "A" || txt === "B") processUserAction(data.nickname || data.uniqueId, data.profilePictureUrl, txt);
+      }
+      if (data.event === "gift") {
+        const coins = data.diamondCount || 1;
+        const giftType = coins >= 100 ? 'GIFT_LARGE' : (coins >= 10 ? 'GIFT_MEDIUM' : 'GIFT_SMALL');
+        processGift(data.nickname || data.uniqueId, giftType);
       }
     };
-
-    ws.onerror = () => {
-      statusDot.classList.remove('connected');
-    };
-
     ws.onclose = () => {
-      statusDot.classList.remove('connected');
-      // Reintentar conexión automáticamente cada 5 segundos
-      setTimeout(initTikFinityWebSocket, 5000);
+      document.getElementById('ws-status-dot').classList.remove('connected');
+      setTimeout(initWS, 4000);
     };
   }
+  initWS();
 
-  initTikFinityWebSocket();
-
-  // ==========================================
-  // PANEL DE SIMULACIÓN Y CONTROL LOCAL
-  // ==========================================
   function triggerSimulation() {
     const user = document.getElementById('sim-user').value || 'User' + Math.floor(Math.random()*100);
-    const action = document.getElementById('sim-action').value;
-
-    if (action === 'A' || action === 'B') {
-      processUserAction(user, null, action);
-    } else {
-      processGift(user, action);
-    }
+    const act = document.getElementById('sim-action').value;
+    if (act === 'A' || act === 'B') processUserAction(user, null, act);
+    else processGift(user, act);
   }
 
   function toggleSimPanel() {
-    const panel = document.getElementById('sim-panel');
-    panel.style.display = panel.style.display === 'none' ? 'flex' : 'none';
+    const p = document.getElementById('sim-panel');
+    p.style.display = p.style.display === 'none' ? 'flex' : 'none';
   }
 
-  // Ajustar tamaño del Canvas al redimensionar ventana u OBS
   window.addEventListener('resize', () => {
     render.canvas.width = window.innerWidth;
     render.canvas.height = window.innerHeight;
